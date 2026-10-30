@@ -15,3 +15,12 @@ Este projeto resolve a dor de depender de sites de terceiros (muitas vezes reple
 1. Clone este repositório:
    ```bash
    git clone [https://github.com/SEU-USUARIO/multi-tools2.git](https://github.com/SEU-USUARIO/multi-tools2.git)
+
+## 🤝 Como contribuir
+Este é um projeto Open Source! Se você encontrou alguma issue ou tem ideias para novas ferramentas, sinta-se à vontade para fazer um Fork, criar uma nova branch e enviar o seu Pull Request.
+
+## Acesse a pasta do projeto:
+
+```bash
+cd multi-tools2
+
