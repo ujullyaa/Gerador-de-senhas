@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilitários: Gerador de Senhas e QR Code</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        #qrcode img {
+            margin: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            Multi-Tools
+        </h1>
+        <a href="https://github.com/ujullyaa/multi-tools2.git" target="_blank" class="hover:text-indigo-200 transition-colors font-medium flex items-center gap-2">
+            Ver no GitHub
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+        </a>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl overflow-hidden">
+            
+            <div class="flex border-b text-center">
+                <button id="tab-senha" class="flex-1 py-4 bg-indigo-50 text-indigo-700 font-semibold border-b-2 border-indigo-600 transition-colors" onclick="switchTab('senha')">
+                    Gerador de Senhas
+                </button>
+                <button id="tab-qr" class="flex-1 py-4 text-gray-500 font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors" onclick="switchTab('qr')">
+                    Gerador de QR Code
+                </button>
+            </div>
+
+            <div id="sec-senha" class="p-6 sm:p-8 block">
+                <div class="mb-6 relative">
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <span id="senha-output" class="text-xl font-mono text-gray-700 break-all">Selecione as opções e gere</span>
+                        <button id="btn-copy" onclick="copyPassword()" class="ml-4 bg-indigo-100 text-indigo-700 px-4 py-2 rounded font-medium hover:bg-indigo-200 transition-colors flex-shrink-0">
+                            Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                            Tamanho da Senha: <span id="len-val" class="text-indigo-600 font-bold">16</span>
+                        </label>
+                        <input type="range" id="length" min="6" max="64" value="16" class="w-full cursor-pointer accent-indigo-600" oninput="updateLength()">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="uppercase" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-5 h-5 cursor-pointer">
+                            <span class="text-gray-700">Letras Maiúsculas</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="lowercase" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-5 h-5 cursor-pointer">
+                            <span class="text-gray-700">Letras Minúsculas</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="numbers" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-5 h-5 cursor-pointer">
+                            <span class="text-gray-700">Números</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="symbols" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-5 h-5 cursor-pointer">
+                            <span class="text-gray-700">Símbolos</span>
+                        </label>
+                    </div>
+
+                    <button onclick="generatePassword()" class="w-full mt-6 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-md">
+                        Gerar Nova Senha
+                    </button>
+                </div>
+            </div>
+
+            <div id="sec-qr" class="p-6 sm:p-8 hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Texto ou URL</label>
+                        <textarea id="qr-text" rows="3" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" placeholder="Digite o texto ou cole um link aqui..."></textarea>
+                    </div>
+                    
+                    <button onclick="generateQRCode()" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-md">
+                        Gerar QR Code
+                    </button>
+
+                    <div class="mt-6 flex justify-center">
+                        <div id="qrcode" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm min-h-[230px] min-w-[230px] flex items-center justify-center">
+                            <span class="text-gray-400 text-sm">O QR Code aparecerá aqui</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm">
+        <p>Desenvolvido por <span class="text-white font-semibold">Seu Nome</span> &copy; 2026</p>
+        <p class="mt-1">Projeto Open Source criado para portfólio.</p>
+    </footer>
+
+    <script>
+        function switchTab(tab) {
+            const secSenha = document.getElementById('sec-senha');
+            const secQr = document.getElementById('sec-qr');
+            const tabSenha = document.getElementById('tab-senha');
+            const tabQr = document.getElementById('tab-qr');
+
+            if (tab === 'senha') {
+                secSenha.classList.remove('hidden');
+                secQr.classList.add('hidden');
+                
+                tabSenha.className = "flex-1 py-4 bg-indigo-50 text-indigo-700 font-semibold border-b-2 border-indigo-600 transition-colors";
+                tabQr.className = "flex-1 py-4 text-gray-500 font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors";
+            } else {
+                secQr.classList.remove('hidden');
+                secSenha.classList.add('hidden');
+
+                tabQr.className = "flex-1 py-4 bg-indigo-50 text-indigo-700 font-semibold border-b-2 border-indigo-600 transition-colors";
+                tabSenha.className = "flex-1 py-4 text-gray-500 font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors";
+            }
+        }
+
+        const keys = {
+            upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            lowerCase: "abcdefghijklmnopqrstuvwxyz",
+            number: "0123456789",
+            symbol: "!@#$%^&*()_+~\\`|}{[]:;?><,./-="
+        }
+
+        function updateLength() {
+            document.getElementById('len-val').innerText = document.getElementById('length').value;
+        }
+
+        function generatePassword() {
+            const length = document.getElementById('length').value;
+            const hasUpper = document.getElementById('uppercase').checked;
+            const hasLower = document.getElementById('lowercase').checked;
+            const hasNumber = document.getElementById('numbers').checked;
+            const hasSymbol = document.getElementById('symbols').checked;
+            
+            let characters = "";
+            if (hasUpper) characters += keys.upperCase;
+            if (hasLower) characters += keys.lowerCase;
+            if (hasNumber) characters += keys.number;
+            if (hasSymbol) characters += keys.symbol;
+
+            if (characters === "") {
+                document.getElementById('senha-output').innerText = "Selecione ao menos 1 opção";
+                return;
+            }
+
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += characters[Math.floor(Math.random() * characters.length)];
+            }
+
+            document.getElementById('senha-output').innerText = password;
+            document.getElementById('senha-output').classList.add('text-indigo-700', 'font-bold');
+        }
+
+        function copyPassword() {
+            const passText = document.getElementById('senha-output').innerText;
+            if(passText === "Selecione as opções e gere" || passText === "Selecione ao menos 1 opção") return;
+            
+            navigator.clipboard.writeText(passText).then(() => {
+                const btnCopy = document.getElementById('btn-copy');
+                const originalText = btnCopy.innerText;
+                btnCopy.innerText = "Copiado!";
+                btnCopy.classList.replace('bg-indigo-100', 'bg-green-100');
+                btnCopy.classList.replace('text-indigo-700', 'text-green-700');
+                
+                setTimeout(() => {
+                    btnCopy.innerText = originalText;
+                    btnCopy.classList.replace('bg-green-100', 'bg-indigo-100');
+                    btnCopy.classList.replace('text-green-700', 'text-indigo-700');
+                }, 2000);
+            });
+        }
+
+        let qrcode = null;
+        
+        function generateQRCode() {
+            const text = document.getElementById('qr-text').value;
+            const qrContainer = document.getElementById('qrcode');
+            
+            if (!text.trim()) {
+                alert("Por favor, digite um texto ou URL válido.");
+                return;
+            }
+
+            qrContainer.innerHTML = ""; // Limpa anterior
+            
+            qrcode = new QRCode(qrContainer, {
+                text: text,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        generatePassword();
+    </script>
+</body>
+</html>
